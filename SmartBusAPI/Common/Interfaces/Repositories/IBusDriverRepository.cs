@@ -1,6 +1,6 @@
 ﻿namespace SmartBusAPI.Common.Interfaces.Repositories
 {
-    public interface IStudentRepository
+    public interface IBusDriverRepository
     {
     }
 }
