@@ -23,7 +23,6 @@
     <Folder Include="CQRS\CommandHandlers\" />
     <Folder Include="CQRS\QueryHandlers\" />
     <Folder Include="CQRS\Queries\" />
-    <Folder Include="Persistence\Repositories\" />
     <Folder Include="Repositories\" />
     <Folder Include="Services\" />
   </ItemGroup>
