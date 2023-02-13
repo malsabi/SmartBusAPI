@@ -1,19 +1,12 @@
-﻿namespace SmartBusAPI.Entities
+﻿namespace SmartBusAPI.DTOs.Auth.Registration
 {
-    public class Student
+    public class StudentRegisterDto : ParentRegisterDto
     {
-        public int ID { get; set; }
         public int FaceRecognitionID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Gender { get; set; }
         public string SchoolName { get; set; }
         public int GradeLevel { get; set; }
-
-        public int ParentID { get; set; }
-        public Parent Parent { get; set; }
-
-        public int BusID { get; set; }
-        public Bus Bus { get; set; }
     }
 }

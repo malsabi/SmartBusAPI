@@ -1,9 +1,8 @@
-﻿namespace SmartBusAPI.DTOs.Auth
+﻿namespace SmartBusAPI.DTOs.Auth.Login
 {
-    public class LoginDto
+    public class LoginParentDto
     {
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Role { get; set; }
     }
 }

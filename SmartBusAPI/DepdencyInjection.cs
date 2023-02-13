@@ -1,7 +1,10 @@
-﻿using MediatR;
+﻿using SmartBusAPI.Services;
 using SmartBusAPI.Persistence;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using SmartBusAPI.Persistence.Repositories;
+using SmartBusAPI.Common.Interfaces.Services;
+using SmartBusAPI.Common.Interfaces.Repositories;
 
 namespace SmartBusAPI
 {
@@ -39,9 +42,11 @@ namespace SmartBusAPI
             });
             return services;
         }
+
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddMediatR(typeof(DepdencyInjection).Assembly);
+            services.AddSingleton<IHashProviderService, HashProviderService>();
+            services.AddSingleton<IJwtAuthService, JwtAuthService>();
             return services;
         }
 
@@ -52,7 +57,13 @@ namespace SmartBusAPI
                 options.UseSqlServer(configuration.GetConnectionString("DB_CONNECTION_STRING"));
             });
 
-            //Add Repositories as Scoped
+            services.AddScoped<IAdministratorRepository, AdministratorRepository>();
+            services.AddScoped<IBusDriverRepository, BusDriverRepository>();
+            services.AddScoped<IBusRepository, BusRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IParentRepository, ParentRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
+
             return services;
         }
     }
