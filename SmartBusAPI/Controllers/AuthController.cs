@@ -1,4 +1,5 @@
-﻿using SmartBusAPI.Entities;
+﻿using ErrorOr;
+using SmartBusAPI.Entities;
 using Microsoft.AspNetCore.Mvc;
 using SmartBusAPI.DTOs.Auth.Login;
 using SmartBusAPI.DTOs.Auth.Registration;
@@ -32,64 +33,86 @@ namespace SmartBusAPI.Controllers
         [HttpPost("login/parent")]
         public async Task<IActionResult> Login(LoginParentDto loginParentDto)
         {
+            ErrorOr<string> result;
             Parent parent = await parentRepository.GetParentByEmail(loginParentDto.Email);
 
             if (parent == null)
             {
-                return BadRequest("Email does not exists");
+                result = Error.NotFound(code: "ParentEmailNotFound", description: "The given email does not exist.");
             }
-
-            if (!hashProviderService.VerifyHash(loginParentDto.Password, parent.Password))
+            else if (!hashProviderService.VerifyHash(loginParentDto.Password, parent.Password))
             {
-                return BadRequest("Password is incorrect");
+                result = Error.NotFound(code: "InvalidParentPassword", description: "Password is incorrect");
             }
-
-            string authToken = jwtAuthService.GenerateAuthToken(parent.ParentFirstName, parent.ParentLastName, nameof(parent));
-
-            return Ok(authToken);
+            else
+            {
+                string authToken = jwtAuthService.GenerateAuthToken(parent.ParentFirstName, parent.ParentLastName, nameof(Parent));
+                result = authToken;
+            }
+            
+            return result.Match
+            (
+                success => Ok(success),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPost("login/bus-driver")]
         public async Task<IActionResult> Login(LoginDriverDto loginDriverDto)
         {
+            ErrorOr<string> result;
             BusDriver busDriver = await busDriverRepository.GetBusDriverByDriverID(loginDriverDto.DriverID);
 
             if (busDriver == null)
             {
-                return BadRequest("Driver ID does not exists");
+                result = Error.NotFound(code: "DriverIDNotFound", description: "The given Driver ID does not exist.");
             }
-
-            if (!hashProviderService.VerifyHash(loginDriverDto.Password, busDriver.Password))
+            else if (!hashProviderService.VerifyHash(loginDriverDto.Password, busDriver.Password))
             {
-                return BadRequest("Password is incorrect");
+                result = Error.NotFound(code: "InvalidDriverPassword", description: "Password is incorrect");
+            }
+            else
+            {
+                string authToken = jwtAuthService.GenerateAuthToken(busDriver.FirstName, busDriver.LastName, nameof(BusDriver));
+                result = authToken;
             }
 
-            string authToken = jwtAuthService.GenerateAuthToken(busDriver.FirstName, busDriver.LastName, nameof(BusDriver));
-
-            return Ok(authToken);
+            return result.Match
+            (
+                success => Ok(success),
+                errors => Problem(errors)
+            );
         }
  
         [HttpPost("register/parent")]
         public async Task<IActionResult> Register(ParentRegisterDto parentRegisterDto)
         {
+            ErrorOr<string> result;
             if (await parentRepository.GetParentByEmail(parentRegisterDto.ParentEmail) is not null)
             {
-                return BadRequest("Email already exists");
+                result = Error.Conflict(code: "DuplicateEmailParent", description: "The given email already exists");
+            }
+            else
+            {
+                Parent parent = new()
+                {
+                    ParentFirstName = parentRegisterDto.ParentFirstName,
+                    ParentLastName = parentRegisterDto.ParentLastName,
+                    ParentEmail = parentRegisterDto.ParentEmail,
+                    ParentPhoneNumber = parentRegisterDto.ParentPhoneNumber,
+                    ParentAddress = parentRegisterDto.ParentAddress,
+                    Password = hashProviderService.ComputeHash(parentRegisterDto.Password)
+                };
+
+                await parentRepository.AddParent(parent);
+                result = "Parent is registered successfully";
             }
 
-            Parent parent = new()
-            {
-                ParentFirstName = parentRegisterDto.ParentFirstName,
-                ParentLastName = parentRegisterDto.ParentLastName,
-                ParentEmail = parentRegisterDto.ParentEmail,
-                ParentPhoneNumber = parentRegisterDto.ParentPhoneNumber,
-                ParentAddress = parentRegisterDto.ParentAddress,
-                Password = hashProviderService.ComputeHash(parentRegisterDto.Password)
-            };
-
-            await parentRepository.AddParent(parent);
-
-            return Ok();
+            return result.Match
+            (
+                success => Ok(success),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPost("register/student")]
@@ -111,7 +134,7 @@ namespace SmartBusAPI.Controllers
                 await parentRepository.AddParent(parent);
             }
 
-            Student student = new Student
+            Student student = new()
             {
                 FaceRecognitionID = studentRegisterDto.FaceRecognitionID,
                 FirstName = studentRegisterDto.FirstName,
@@ -124,31 +147,40 @@ namespace SmartBusAPI.Controllers
 
             await studentRepository.AddStudent(student);
 
-            return Ok();
+            return Ok("Student is registered successfully");
         }
 
         [HttpPost("register/bus-driver")]
         public async Task<IActionResult> Register(DriverRegisterDto driverRegisterDto)
         {
+            ErrorOr<string> result;
             if (await busDriverRepository.GetBusDriverByDriverID(driverRegisterDto.DriverID) is not null)
             {
-                return BadRequest("Driver ID already exists");
+                result = Error.Conflict(code: "DuplicateDriverID", description: "The given Driver ID already exists");
             }
-
-            BusDriver busDriver = new()
+            else
             {
-                FirstName = driverRegisterDto.FirstName,
-                LastName = driverRegisterDto.LastName,
-                Email = driverRegisterDto.Email,
-                DriverID = driverRegisterDto.DriverID,
-                PhoneNumber = driverRegisterDto.PhoneNumber,
-                Country = driverRegisterDto.Country,
-                Password = hashProviderService.ComputeHash(driverRegisterDto.Password)
-            };
+                BusDriver busDriver = new()
+                {
+                    FirstName = driverRegisterDto.FirstName,
+                    LastName = driverRegisterDto.LastName,
+                    Email = driverRegisterDto.Email,
+                    DriverID = driverRegisterDto.DriverID,
+                    PhoneNumber = driverRegisterDto.PhoneNumber,
+                    Country = driverRegisterDto.Country,
+                    Password = hashProviderService.ComputeHash(driverRegisterDto.Password)
+                };
 
-            await busDriverRepository.AddBusDriver(busDriver);
+                await busDriverRepository.AddBusDriver(busDriver);
 
-            return Ok();
+                result = "Bus Driver is registered successfully";
+            }
+    
+            return result.Match
+            (
+                success => Ok(success),
+                errors => Problem(errors)
+            );
         }
     }
 }

@@ -14,6 +14,7 @@ var app = builder.Build();
     using (IServiceScope scope = app.Services.CreateScope())
     {
         SmartBusContext context = scope.ServiceProvider.GetRequiredService<SmartBusContext>();
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
     }
 

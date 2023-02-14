@@ -33,7 +33,7 @@ namespace SmartBusAPI.Controllers
                     statusCode = StatusCodes.Status500InternalServerError;
                     break;
             }
-            return Problem(statusCode: statusCode, title: error.Description, type: error.Type.ToString());
+            return Problem(statusCode: statusCode, title: error.Code, detail: error.Description, type: error.Type.ToString());
         }
     }
 }

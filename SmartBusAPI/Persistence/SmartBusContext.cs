@@ -26,7 +26,8 @@ namespace SmartBusAPI.Persistence
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.Bus)
                 .WithMany(b => b.Students)
-                .HasForeignKey(s => s.BusID);
+                .HasForeignKey(s => s.BusID)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Parent>()
                 .HasMany(p => p.Students)
