@@ -1,6 +1,6 @@
 using SmartBusAPI;
+using SmartBusAPI.Hubs;
 using SmartBusAPI.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 {
@@ -22,7 +22,12 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseHttpsRedirection();
-    app.UseAuthorization();
     app.MapControllers();
+    app.UseRouting();
+    app.UseAuthorization();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapHub<NotificationHub>("/notification_hub");
+    });
     app.Run();
 }

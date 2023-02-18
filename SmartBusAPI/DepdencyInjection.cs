@@ -16,6 +16,7 @@ namespace SmartBusAPI
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(config =>

@@ -11,9 +11,9 @@
         public int GradeLevel { get; set; }
 
         public int ParentID { get; set; }
-        public Parent Parent { get; set; }
+        public virtual Parent Parent { get; set; }
 
         public int? BusID { get; set; }
-        public Bus Bus { get; set; }
+        public virtual Bus Bus { get; set; }
     }
 }

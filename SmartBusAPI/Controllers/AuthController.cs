@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using SmartBusAPI.Entities;
+using SmartBusAPI.DTOs.Bus;
 using Microsoft.AspNetCore.Mvc;
 using SmartBusAPI.DTOs.Auth.Login;
 using SmartBusAPI.DTOs.Auth.Registration;
@@ -60,7 +61,7 @@ namespace SmartBusAPI.Controllers
         [HttpPost("login/bus-driver")]
         public async Task<IActionResult> Login(LoginDriverDto loginDriverDto)
         {
-            ErrorOr<string> result;
+            ErrorOr<LoginDriverResponseDto> result;
             BusDriver busDriver = await busDriverRepository.GetBusDriverByDriverID(loginDriverDto.DriverID);
 
             if (busDriver == null)
@@ -74,7 +75,27 @@ namespace SmartBusAPI.Controllers
             else
             {
                 string authToken = jwtAuthService.GenerateAuthToken(busDriver.FirstName, busDriver.LastName, nameof(BusDriver));
-                result = authToken;
+
+                LoginDriverResponseDto loginDriverResponseDto = new()
+                {
+                    ID = busDriver.ID,
+                    FirstName = busDriver.FirstName,
+                    LastName = busDriver.LastName,
+                    Email = busDriver.Email,
+                    DriverID = busDriver.DriverID,
+                    PhoneNumber = busDriver.PhoneNumber,
+                    Country = busDriver.Country,
+                    BusDto = new BusDto()
+                    {
+                        ID = (int)busDriver.BusID,
+                        BusNumber = busDriver.Bus.BusNumber,
+                        Capacity = busDriver.Bus.Capacity,
+                        CurrentLocation = busDriver.Bus.CurrentLocation,
+                    },
+                    Token = authToken
+                };
+
+                result = loginDriverResponseDto;
             }
 
             return result.Match

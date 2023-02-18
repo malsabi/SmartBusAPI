@@ -10,7 +10,7 @@
         public string ParentAddress { get; set; }
         public string Password { get; set; }
 
-        public ICollection<Student> Students { get; set; }
-        public ICollection<Notification> Notifications { get; set; }
+        public virtual ICollection<Student> Students { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

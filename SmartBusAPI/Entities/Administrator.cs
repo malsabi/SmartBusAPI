@@ -8,6 +8,6 @@
         public string Email { get; set; }
         public string Password { get; set; }
 
-        public ICollection<Bus> Buses { get; set; }
+        public virtual ICollection<Bus> Buses { get; set; }
     }
 }

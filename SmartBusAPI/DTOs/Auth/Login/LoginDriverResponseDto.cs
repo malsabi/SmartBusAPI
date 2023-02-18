@@ -1,6 +1,8 @@
-﻿namespace SmartBusAPI.Entities
+﻿using SmartBusAPI.DTOs.Bus;
+
+namespace SmartBusAPI.DTOs.Auth.Login
 {
-    public class BusDriver
+    public class LoginDriverResponseDto
     {
         public int ID { get; set; }
         public string FirstName { get; set; }
@@ -9,9 +11,7 @@
         public string DriverID { get; set; }
         public string PhoneNumber { get; set; }
         public string Country { get; set; }
-        public string Password { get; set; }
-        
-        public int BusID { get; set; }
-        public virtual Bus Bus { get; set; }
+        public BusDto BusDto { get; set; }
+        public string Token { get; set; }
     }
 }
