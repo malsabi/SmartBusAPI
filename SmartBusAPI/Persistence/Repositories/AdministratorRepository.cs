@@ -19,6 +19,11 @@
             return await smartBusContext.Administrators.FindAsync(administratorId);
         }
 
+        public async Task<Administrator> GetAdministratorByEmail(string email)
+        {
+            return await smartBusContext.Administrators.FirstOrDefaultAsync(admin => admin.Email == email);
+        }
+
         public async Task AddAdministrator(Administrator administrator)
         {
             smartBusContext.Administrators.Add(administrator);

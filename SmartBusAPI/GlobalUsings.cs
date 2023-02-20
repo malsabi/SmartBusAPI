@@ -8,6 +8,7 @@ global using System.Reflection;
 global using SmartBusAPI.Entities;
 global using SmartBusAPI.Services;
 global using SmartBusAPI.DTOs.Bus;
+global using SmartBusAPI.DTOs.Admin;
 global using System.Security.Claims;
 global using SmartBusAPI.Persistence;
 global using SmartBusAPI.DTOs.Parent;
