@@ -104,7 +104,6 @@
         {
             ErrorOr<LoginDriverResponseDto> result;
             BusDriver busDriver = await busDriverRepository.GetBusDriverByDriverID(loginDriverDto.DriverID);
-            Bus bus = await busRepository.GetBusById((int)busDriver.BusID);
 
             if (busDriver == null)
             {
@@ -116,6 +115,8 @@
             }
             else
             {
+                Bus bus = await busRepository.GetBusById((int)busDriver.BusID);
+
                 string authToken = jwtAuthService.GenerateAuthToken(busDriver.FirstName, busDriver.LastName, nameof(BusDriver));
                 LoginDriverResponseDto loginDriverResponseDto = new()
                 {
