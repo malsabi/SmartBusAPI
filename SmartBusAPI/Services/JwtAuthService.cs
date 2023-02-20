@@ -1,12 +1,4 @@
-﻿using System.Text;
-using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using SmartBusAPI.Common.Interfaces.Services;
-using SmartBusAPI.Persistence.Authentication;
-
-namespace SmartBusAPI.Services
+﻿namespace SmartBusAPI.Services
 {
     public class JwtAuthService : IJwtAuthService
     {

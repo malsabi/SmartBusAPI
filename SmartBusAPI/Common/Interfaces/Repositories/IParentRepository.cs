@@ -1,6 +1,4 @@
-﻿using SmartBusAPI.Entities;
-
-namespace SmartBusAPI.Common.Interfaces.Repositories
+﻿namespace SmartBusAPI.Common.Interfaces.Repositories
 {
     public interface IParentRepository
     {

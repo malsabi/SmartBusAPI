@@ -1,8 +1,4 @@
-﻿using SmartBusAPI.Entities;
-using Microsoft.EntityFrameworkCore;
-using SmartBusAPI.Common.Interfaces.Repositories;
-
-namespace SmartBusAPI.Persistence.Repositories
+﻿namespace SmartBusAPI.Persistence.Repositories
 {
     public class ParentRepository : IParentRepository
     {
@@ -25,7 +21,7 @@ namespace SmartBusAPI.Persistence.Repositories
 
         public async Task<Parent> GetParentByEmail(string email)
         {
-            return await smartBusContext.Parents.FirstOrDefaultAsync(p => p.ParentEmail == email);
+            return await smartBusContext.Parents.FirstOrDefaultAsync(p => p.Email == email);
         }
 
         public async Task AddParent(Parent parent)

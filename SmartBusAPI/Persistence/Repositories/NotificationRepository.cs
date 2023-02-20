@@ -1,10 +1,4 @@
-﻿using SmartBusAPI.Hubs;
-using SmartBusAPI.Entities;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using SmartBusAPI.Common.Interfaces.Repositories;
-
-namespace SmartBusAPI.Persistence.Repositories
+﻿namespace SmartBusAPI.Persistence.Repositories
 {
     public class NotificationRepository : INotificationRepository
     {
@@ -32,7 +26,7 @@ namespace SmartBusAPI.Persistence.Repositories
         {
             smartBusContext.Notifications.Add(notification);
             await smartBusContext.SaveChangesAsync();
-            await hubContext.Clients.All.SendAsync("NewNotificationItemAdded");
+            //await hubContext.Clients.All.SendAsync("");
         }
 
         public async Task UpdateNotification(Notification notification)

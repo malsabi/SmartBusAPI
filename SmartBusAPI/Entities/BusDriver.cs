@@ -11,7 +11,6 @@
         public string Country { get; set; }
         public string Password { get; set; }
         
-        public int BusID { get; set; }
-        public virtual Bus Bus { get; set; }
+        public int? BusID { get; set; }
     }
 }

@@ -1,8 +1,4 @@
-﻿using SmartBusAPI.Entities;
-using Microsoft.EntityFrameworkCore;
-using SmartBusAPI.Common.Interfaces.Repositories;
-
-namespace SmartBusAPI.Persistence.Repositories
+﻿namespace SmartBusAPI.Persistence.Repositories
 {
     public class StudentRepository : IStudentRepository
     {

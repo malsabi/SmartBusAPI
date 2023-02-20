@@ -1,7 +1,4 @@
-﻿using SmartBusAPI.Entities;
-using Microsoft.EntityFrameworkCore;
-
-namespace SmartBusAPI.Persistence
+﻿namespace SmartBusAPI.Persistence
 {
     public class SmartBusContext : DbContext
     {
@@ -9,12 +6,12 @@ namespace SmartBusAPI.Persistence
         {
         }
 
-        public DbSet<Student> Students { get; set; }
-        public DbSet<Parent> Parents { get; set; }
         public DbSet<Administrator> Administrators { get; set; }
+        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Student> Students { get; set; }
         public DbSet<Bus> Buses { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
         public DbSet<BusDriver> BusDrivers { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -23,67 +20,6 @@ namespace SmartBusAPI.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.Parent)
-                .WithMany(p => p.Students)
-                .HasForeignKey(s => s.ParentID);
-
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.Bus)
-                .WithMany(b => b.Students)
-                .HasForeignKey(s => s.BusID)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<Parent>()
-                .HasMany(p => p.Students)
-                .WithOne(s => s.Parent)
-                .HasForeignKey(s => s.ParentID);
-
-            modelBuilder.Entity<Parent>()
-                .HasMany(p => p.Notifications)
-                .WithOne(n => n.Parent)
-                .HasForeignKey(n => n.ParentID);
-
-            modelBuilder.Entity<Administrator>()
-                .HasMany(a => a.Buses)
-                .WithOne(b => b.Monitor)
-                .HasForeignKey(b => b.MonitorID);
-
-            modelBuilder.Entity<Bus>()
-                .HasOne(b => b.BusDriver)
-                .WithOne(d => d.Bus)
-                .HasForeignKey<BusDriver>(d => d.BusID);
-
-            modelBuilder.Entity<Bus>()
-                .HasOne(b => b.Monitor)
-                .WithMany(a => a.Buses)
-                .HasForeignKey(b => b.MonitorID);
-
-            modelBuilder.Entity<Bus>()
-                .HasMany(b => b.Notifications)
-                .WithOne(n => n.Bus)
-                .HasForeignKey(n => n.BusID);
-
-            modelBuilder.Entity<Notification>()
-                .HasOne(n => n.Parent)
-                .WithMany(p => p.Notifications)
-                .HasForeignKey(n => n.ParentID)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<Notification>()
-                .HasOne(n => n.Bus)
-                .WithMany(b => b.Notifications)
-                .HasForeignKey(n => n.BusID)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<BusDriver>()
-                .HasOne(d => d.Bus)
-                .WithOne(b => b.BusDriver)
-                .HasForeignKey<Bus>(b => b.DriverID);
-
             Seed(modelBuilder);
         }
 
@@ -101,28 +37,24 @@ namespace SmartBusAPI.Persistence
                 }
             };
 
-            modelBuilder.Entity<Administrator>().HasData(administrators);
-
             List<Bus> buses = new()
             {
                 new Bus()
                 {
                     ID = 1,
-                    BusNumber = "29812",
+                    LicenseNumber = 29812,
                     CurrentLocation = "",
                     Capacity = 50,
-                    MonitorID = 1,
-                    DriverID = null
+                    IsInService = false
                 },
                 new Bus()
                 {
                     ID = 2,
-                    BusNumber = "91375",
+                    LicenseNumber = 91375,
                     CurrentLocation = "",
                     Capacity = 50,
-                    MonitorID = 1,
-                    DriverID = null
-                },
+                    IsInService = false
+                }
             };
 
             List<BusDriver> busDrivers = new()
@@ -145,7 +77,7 @@ namespace SmartBusAPI.Persistence
                     FirstName = "Siti",
                     LastName = "Nurhikmah",
                     Email = "Siti_Nurhikmah@outlook.com",
-                    DriverID = "D-202319951",
+                    DriverID = "D-2023199511",
                     PhoneNumber = "+971501234567",
                     Country = "Indonesia",
                     Password = "d23c73ec1cbc838b8eef44092f8072aea15c621d883d9ce4ff218b938f42cd93",
@@ -153,15 +85,42 @@ namespace SmartBusAPI.Persistence
                 },
             };
 
-            foreach (BusDriver busDriver in busDrivers)
+            List<Parent> parents = new()
             {
-                Bus bus = buses.FirstOrDefault(b => b.ID == busDriver.BusID);
-                if (bus != null)
+                new Parent()
                 {
-                    bus.DriverID = busDriver.ID;
+                    ID = 1,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "JohnDoe@gmail.com",
+                    PhoneNumber = "+971501234567",
+                    Address = "Sharjah - United Arab Emirates",
+                    Password = "63d65bfe030ff5cbaac27bb8c9215bf7b1c635b3a8ed7ee9ad45eccf9e4b2e2f"
                 }
-            }
+            };
 
+            List<Student> students = new()
+            {
+                new Student()
+                {
+                    ID = 1,
+                    Image = "",
+                    FirstName = "Mikel",
+                    LastName = "Doe",
+                    Gender = "Male",
+                    GradeLevel = 6,
+                    Address = "Sharjah - United Arab Emirates",
+                    BelongsToBusID = 1,
+                    IsAtSchool = false,
+                    IsOnBus = false,
+                    IsAtHome = true,
+                    ParentID = 1,
+                }
+            };
+
+            modelBuilder.Entity<Administrator>().HasData(administrators);
+            modelBuilder.Entity<Parent>().HasData(parents);
+            modelBuilder.Entity<Student>().HasData(students);
             modelBuilder.Entity<Bus>().HasData(buses);
             modelBuilder.Entity<BusDriver>().HasData(busDrivers);
         }

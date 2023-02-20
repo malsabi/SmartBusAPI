@@ -1,6 +1,6 @@
-﻿namespace SmartBusAPI.DTOs.Auth.Login
+﻿namespace SmartBusAPI.DTOs.Auth.Login.Request
 {
-    public class LoginDriverDto
+    public class LoginDriverRequestDto
     {
         public string DriverID { get; set; }
         public string Password { get; set; }

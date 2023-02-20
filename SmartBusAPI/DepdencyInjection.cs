@@ -1,16 +1,4 @@
-﻿using SmartBusAPI.Services;
-using SmartBusAPI.Persistence;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Options;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using SmartBusAPI.Persistence.Repositories;
-using SmartBusAPI.Common.Interfaces.Services;
-using SmartBusAPI.Persistence.Authentication;
-using SmartBusAPI.Common.Interfaces.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-
-namespace SmartBusAPI
+﻿namespace SmartBusAPI
 {
     public static class DepdencyInjection
     {
@@ -50,6 +38,7 @@ namespace SmartBusAPI
 
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            services.AddMappings();
             services.AddSingleton<IHashProviderService, HashProviderService>();
             services.AddSingleton<IJwtAuthService, JwtAuthService>();
             return services;

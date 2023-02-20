@@ -1,8 +1,4 @@
-﻿using System.Text;
-using System.Security.Cryptography;
-using SmartBusAPI.Common.Interfaces.Services;
-
-namespace SmartBusAPI.Services
+﻿namespace SmartBusAPI.Services
 {
     public class HashProviderService : IHashProviderService
     {

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-
-namespace SmartBusAPI.Hubs
+﻿namespace SmartBusAPI.Hubs
 {
     public class NotificationHub : Hub
     {
@@ -24,13 +22,11 @@ namespace SmartBusAPI.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"parent-{parentId}");
         }
 
-        // Send notifications to the bus group
         public async Task SendNotificationToBusGroup(int busId, string message)
         {
             await Clients.Group($"bus-{busId}").SendAsync("ReceiveNotification", message);
         }
 
-        // Send notifications to the parent group
         public async Task SendNotificationToParentGroup(int parentId, string message)
         {
             await Clients.Group($"parent-{parentId}").SendAsync("ReceiveNotification", message);

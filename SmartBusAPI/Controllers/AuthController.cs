@@ -1,40 +1,37 @@
-﻿using ErrorOr;
-using SmartBusAPI.Entities;
-using SmartBusAPI.DTOs.Bus;
-using Microsoft.AspNetCore.Mvc;
-using SmartBusAPI.DTOs.Auth.Login;
-using SmartBusAPI.DTOs.Auth.Registration;
-using SmartBusAPI.Common.Interfaces.Services;
-using SmartBusAPI.Common.Interfaces.Repositories;
-
-namespace SmartBusAPI.Controllers
+﻿namespace SmartBusAPI.Controllers
 {
     [Route("api/[controller]")]
     public class AuthController : BaseController
     {
+        private readonly IMapper mapper;
         private readonly IJwtAuthService jwtAuthService;
         private readonly IParentRepository parentRepository;
         private readonly IStudentRepository studentRepository;
+        private readonly IBusRepository busRepository;
         private readonly IBusDriverRepository busDriverRepository;
         private readonly IHashProviderService hashProviderService;
         
-        public AuthController(IJwtAuthService jwtAuthService,
+        public AuthController(IMapper mapper,
+                              IJwtAuthService jwtAuthService,
                               IParentRepository parentRepository, 
                               IStudentRepository studentRepository, 
+                              IBusRepository busRepository,
                               IBusDriverRepository busDriverRepository,
                               IHashProviderService hashProviderService)
         {
+            this.mapper = mapper;
             this.jwtAuthService = jwtAuthService;
             this.parentRepository = parentRepository;
             this.studentRepository = studentRepository;
+            this.busRepository = busRepository;
             this.busDriverRepository = busDriverRepository;
             this.hashProviderService = hashProviderService;
         }
 
         [HttpPost("login/parent")]
-        public async Task<IActionResult> Login(LoginParentDto loginParentDto)
+        public async Task<IActionResult> Login(LoginParentRequestDto loginParentDto)
         {
-            ErrorOr<string> result;
+            ErrorOr<LoginParentResponseDto> result;
             Parent parent = await parentRepository.GetParentByEmail(loginParentDto.Email);
 
             if (parent == null)
@@ -47,22 +44,30 @@ namespace SmartBusAPI.Controllers
             }
             else
             {
-                string authToken = jwtAuthService.GenerateAuthToken(parent.ParentFirstName, parent.ParentLastName, nameof(Parent));
-                result = authToken;
+                string authToken = jwtAuthService.GenerateAuthToken(parent.FirstName, parent.LastName, nameof(Parent));
+
+                LoginParentResponseDto loginParentResponseDto = new()
+                {
+                    ParentDto = mapper.Map<ParentDto>(parent),
+                    AuthToken = authToken
+                };
+
+                result = loginParentResponseDto;
             }
             
             return result.Match
             (
-                success => Ok(success),
-                errors => Problem(errors)
+                Ok,
+                Problem
             );
         }
 
         [HttpPost("login/bus-driver")]
-        public async Task<IActionResult> Login(LoginDriverDto loginDriverDto)
+        public async Task<IActionResult> Login(LoginDriverRequestDto loginDriverDto)
         {
             ErrorOr<LoginDriverResponseDto> result;
             BusDriver busDriver = await busDriverRepository.GetBusDriverByDriverID(loginDriverDto.DriverID);
+            Bus bus = await busRepository.GetBusById((int)busDriver.BusID);
 
             if (busDriver == null)
             {
@@ -75,33 +80,19 @@ namespace SmartBusAPI.Controllers
             else
             {
                 string authToken = jwtAuthService.GenerateAuthToken(busDriver.FirstName, busDriver.LastName, nameof(BusDriver));
-
                 LoginDriverResponseDto loginDriverResponseDto = new()
                 {
-                    ID = busDriver.ID,
-                    FirstName = busDriver.FirstName,
-                    LastName = busDriver.LastName,
-                    Email = busDriver.Email,
-                    DriverID = busDriver.DriverID,
-                    PhoneNumber = busDriver.PhoneNumber,
-                    Country = busDriver.Country,
-                    BusDto = new BusDto()
-                    {
-                        ID = (int)busDriver.BusID,
-                        BusNumber = busDriver.Bus.BusNumber,
-                        Capacity = busDriver.Bus.Capacity,
-                        CurrentLocation = busDriver.Bus.CurrentLocation,
-                    },
-                    Token = authToken
+                    BusDriverDto = mapper.Map<BusDriverDto>(busDriver),
+                    BusDto = mapper.Map<BusDto>(bus),
+                    AuthToken = authToken
                 };
-
                 result = loginDriverResponseDto;
             }
 
             return result.Match
             (
-                success => Ok(success),
-                errors => Problem(errors)
+                Ok,
+                Problem
             );
         }
  
@@ -117,11 +108,11 @@ namespace SmartBusAPI.Controllers
             {
                 Parent parent = new()
                 {
-                    ParentFirstName = parentRegisterDto.ParentFirstName,
-                    ParentLastName = parentRegisterDto.ParentLastName,
-                    ParentEmail = parentRegisterDto.ParentEmail,
-                    ParentPhoneNumber = parentRegisterDto.ParentPhoneNumber,
-                    ParentAddress = parentRegisterDto.ParentAddress,
+                    FirstName = parentRegisterDto.ParentFirstName,
+                    LastName = parentRegisterDto.ParentLastName,
+                    Email = parentRegisterDto.ParentEmail,
+                    PhoneNumber = parentRegisterDto.ParentPhoneNumber,
+                    Address = parentRegisterDto.ParentAddress,
                     Password = hashProviderService.ComputeHash(parentRegisterDto.Password)
                 };
 
@@ -131,8 +122,8 @@ namespace SmartBusAPI.Controllers
 
             return result.Match
             (
-                success => Ok(success),
-                errors => Problem(errors)
+                Ok,
+                Problem
             );
         }
 
@@ -145,11 +136,11 @@ namespace SmartBusAPI.Controllers
             {
                 parent = new Parent
                 {
-                    ParentFirstName = studentRegisterDto.ParentFirstName,
-                    ParentLastName = studentRegisterDto.ParentLastName,
-                    ParentEmail = studentRegisterDto.ParentEmail,
-                    ParentPhoneNumber = studentRegisterDto.ParentPhoneNumber,
-                    ParentAddress = studentRegisterDto.ParentAddress,
+                    FirstName = studentRegisterDto.ParentFirstName,
+                    LastName = studentRegisterDto.ParentLastName,
+                    Email = studentRegisterDto.ParentEmail,
+                    PhoneNumber = studentRegisterDto.ParentPhoneNumber,
+                    Address = studentRegisterDto.ParentAddress,
                     Password = studentRegisterDto.Password
                 };
                 await parentRepository.AddParent(parent);
@@ -157,13 +148,16 @@ namespace SmartBusAPI.Controllers
 
             Student student = new()
             {
-                FaceRecognitionID = studentRegisterDto.FaceRecognitionID,
                 FirstName = studentRegisterDto.FirstName,
                 LastName = studentRegisterDto.LastName,
                 Gender = studentRegisterDto.Gender,
-                SchoolName = studentRegisterDto.SchoolName,
                 GradeLevel = studentRegisterDto.GradeLevel,
-                Parent = parent
+                Address = studentRegisterDto.ParentAddress,
+                BelongsToBusID = studentRegisterDto.BelongsToBusID,
+                IsAtSchool = studentRegisterDto.IsAtSchool,
+                IsAtHome = studentRegisterDto.IsAtHome,
+                IsOnBus = studentRegisterDto.IsOnBus,
+                ParentID = parent.ID
             };
 
             await studentRepository.AddStudent(student);
@@ -199,8 +193,8 @@ namespace SmartBusAPI.Controllers
     
             return result.Match
             (
-                success => Ok(success),
-                errors => Problem(errors)
+                Ok,
+                Problem
             );
         }
     }

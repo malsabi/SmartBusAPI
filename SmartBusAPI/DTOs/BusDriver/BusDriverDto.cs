@@ -1,8 +1,6 @@
-﻿using SmartBusAPI.DTOs.Bus;
-
-namespace SmartBusAPI.DTOs.Auth.Login
+﻿namespace SmartBusAPI.DTOs.BusDriver
 {
-    public class LoginDriverResponseDto
+    public class BusDriverDto
     {
         public int ID { get; set; }
         public string FirstName { get; set; }
@@ -11,7 +9,5 @@ namespace SmartBusAPI.DTOs.Auth.Login
         public string DriverID { get; set; }
         public string PhoneNumber { get; set; }
         public string Country { get; set; }
-        public BusDto BusDto { get; set; }
-        public string Token { get; set; }
     }
 }

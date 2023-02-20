@@ -1,7 +1,3 @@
-using SmartBusAPI;
-using SmartBusAPI.Hubs;
-using SmartBusAPI.Persistence;
-
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services.AddPresentation();
@@ -24,6 +20,7 @@ var app = builder.Build();
     app.UseHttpsRedirection();
     app.MapControllers();
     app.UseRouting();
+    app.UseAuthentication();
     app.UseAuthorization();
     app.UseEndpoints(endpoints =>
     {

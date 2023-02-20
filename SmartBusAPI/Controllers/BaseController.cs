@@ -1,7 +1,4 @@
-﻿using ErrorOr;
-using Microsoft.AspNetCore.Mvc;
-
-namespace SmartBusAPI.Controllers
+﻿namespace SmartBusAPI.Controllers
 {
     [ApiController]
     public class BaseController : ControllerBase
