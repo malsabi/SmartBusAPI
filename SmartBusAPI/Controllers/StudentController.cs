@@ -1,13 +1,18 @@
-﻿namespace SmartBusAPI.Controllers
+﻿using SmartBusAPI.DTOs.Student;
+
+namespace SmartBusAPI.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     public class StudentController : BaseController
     {
+        private readonly IMapper mapper;
         private readonly IStudentRepository studentRepository;
 
-        public StudentController(IStudentRepository studentRepository)
+        public StudentController(IMapper mapper, 
+                                 IStudentRepository studentRepository)
         {
+            this.mapper = mapper;
             this.studentRepository = studentRepository;
         }
 
@@ -20,12 +25,14 @@
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var student = await studentRepository.GetStudentById(id);
+            Student student = await studentRepository.GetStudentById(id);
             if (student == null)
             {
                 return NotFound();
             }
-            return Ok(student);
+
+            StudentDto studentDto = mapper.Map<StudentDto>(student);
+            return Ok(studentDto);
         }
 
         [HttpPost]
