@@ -45,7 +45,8 @@
                     LicenseNumber = 29812,
                     CurrentLocation = "",
                     Capacity = 50,
-                    IsInService = false
+                    IsInService = false,
+                    DestinationType = DestinationType.None
                 },
                 new Bus()
                 {
@@ -53,7 +54,8 @@
                     LicenseNumber = 91375,
                     CurrentLocation = "",
                     Capacity = 50,
-                    IsInService = false
+                    IsInService = false,
+                    DestinationType = DestinationType.None
                 }
             };
 

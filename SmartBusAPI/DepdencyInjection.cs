@@ -7,6 +7,15 @@
             services.AddSignalR();
             services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddEndpointsApiExplorer();
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
             services.AddSwaggerGen(config =>
             {
                 config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

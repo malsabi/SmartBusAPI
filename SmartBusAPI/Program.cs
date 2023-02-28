@@ -20,11 +20,9 @@ var app = builder.Build();
     app.UseHttpsRedirection();
     app.MapControllers();
     app.UseRouting();
+    app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapHub<NotificationHub>("/notification_hub");
-    });
+    app.MapHub<NotificationHub>("/notification_hub");
     app.Run();
 }

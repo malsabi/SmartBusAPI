@@ -10,6 +10,7 @@
         public int GradeLevel { get; set; }
         public string Address { get; set; }
         public int BelongsToBusID { get; set; }
+        public DateTime LastSeen { get; set; }
         public bool IsAtSchool { get; set; } = false;
         public bool IsAtHome { get; set; } = true;
         public bool IsOnBus { get; set; } = false;
