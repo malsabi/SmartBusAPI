@@ -12,13 +12,53 @@
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Notification>>> GetNotifications()
+        public async Task<IActionResult> GetNotifications(int id)
         {
-            return Ok(await notificationRepository.GetAllNotifications());
+            ErrorOr<IEnumerable<Notification>> result;
+
+            List<Notification> notifications = (List<Notification>)await notificationRepository.GetAllNotifications(id);
+
+            if (notifications == null || notifications.Count == 0)
+            {
+                result = Error.NotFound(code: "NotificationNotFound", description: "No notifications were found for the given ID.");
+            }
+            else
+            {
+                result = notifications;
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
+        }
+
+        [HttpGet("start-from")]
+        public async Task<IActionResult> GetNotificationsStartFrom(DateTime value, int id)
+        {
+            ErrorOr<IEnumerable<Notification>> result;
+
+            List<Notification> notifications = (List<Notification>)await notificationRepository.GetNotificationsStartFrom(value, id);
+
+            if (notifications == null || notifications.Count == 0)
+            {
+                result = Error.NotFound(code: "NotificationNotFound", description: "No notifications were found for the given ID.");
+            }
+            else
+            {
+                result = notifications;
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Notification>> GetNotification(int id)
+        public async Task<IActionResult> GetNotification(int id)
         {
             var notification = await notificationRepository.GetNotificationById(id);
 
@@ -31,7 +71,7 @@
         }
 
         [HttpPost]
-        public async Task<ActionResult<Notification>> PostNotification(Notification notification)
+        public async Task<IActionResult> PostNotification(Notification notification)
         {
             await notificationRepository.AddNotification(notification);
             return CreatedAtAction(nameof(GetNotification), new { id = notification.ID }, notification);

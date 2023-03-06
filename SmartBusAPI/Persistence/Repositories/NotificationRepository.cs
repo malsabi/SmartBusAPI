@@ -3,18 +3,20 @@
     public class NotificationRepository : INotificationRepository
     {
         private readonly SmartBusContext smartBusContext;
-        private readonly IHubContext<NotificationHub> hubContext;
 
-        public NotificationRepository(SmartBusContext smartBusContext,
-                                      IHubContext<NotificationHub> hubContext)
+        public NotificationRepository(SmartBusContext smartBusContext)
         {
             this.smartBusContext = smartBusContext;
-            this.hubContext = hubContext;
         }
 
-        public async Task<IEnumerable<Notification>> GetAllNotifications()
+        public async Task<IEnumerable<Notification>> GetAllNotifications(int id)
         {
-            return await smartBusContext.Notifications.ToListAsync();
+            return await smartBusContext.Notifications.Where(n => n.BusID == id).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Notification>> GetNotificationsStartFrom(DateTime value, int id)
+        {
+            return await smartBusContext.Notifications.Where(n => n.BusID == id && n.Timestamp > value).ToListAsync();
         }
 
         public async Task<Notification> GetNotificationById(int id)
@@ -26,7 +28,6 @@
         {
             smartBusContext.Notifications.Add(notification);
             await smartBusContext.SaveChangesAsync();
-            //await hubContext.Clients.All.SendAsync("");
         }
 
         public async Task UpdateNotification(Notification notification)

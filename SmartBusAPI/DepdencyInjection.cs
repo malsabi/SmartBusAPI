@@ -4,7 +4,6 @@
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
-            services.AddSignalR();
             services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddEndpointsApiExplorer();
             services.AddCors(options =>
@@ -59,6 +58,7 @@
             configuration.Bind(JwtSettings.SectionName, jwtSettings);
 
             services.AddSingleton(Options.Create(jwtSettings));
+            services.AddSingleton<IPushNotificationService, PushNotificationService>();
 
             services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters()

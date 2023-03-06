@@ -10,8 +10,7 @@ var app = builder.Build();
     using (IServiceScope scope = app.Services.CreateScope())
     {
         SmartBusContext context = scope.ServiceProvider.GetRequiredService<SmartBusContext>();
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+        context.Database.Migrate();
     }
 
     // Configure the HTTP request pipeline.
@@ -23,6 +22,5 @@ var app = builder.Build();
     app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.MapHub<NotificationHub>("/notification_hub");
     app.Run();
 }

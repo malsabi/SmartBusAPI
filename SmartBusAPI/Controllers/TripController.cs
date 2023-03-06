@@ -42,6 +42,7 @@ namespace SmartBusAPI.Controllers
                 else
                 {
                     bus.IsInService = true;
+                    bus.CurrentLocation = "";
                     bus.DestinationType = startTripDto.DestinationType;
                     bus.Students ??= new List<Student>();
                     bus.Notifications ??= new List<Notification>();
@@ -75,6 +76,7 @@ namespace SmartBusAPI.Controllers
                 else
                 {
                     bus.IsInService = false;
+                    bus.CurrentLocation = "";
                     bus.DestinationType = DestinationType.None;
                     bus.Students.Clear();
                     await busRepository.UpdateBus(bus);
