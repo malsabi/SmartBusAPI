@@ -1,21 +1,23 @@
-﻿
-namespace SmartBusAPI.Controllers
+﻿namespace SmartBusAPI.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     public class TripController : BaseController
     {
         private readonly IBusRepository busRepository;
+        private readonly IParentRepository parentRepository;
         private readonly IStudentRepository studentRepository;
         private readonly INotificationRepository notificationRepository;
         private readonly IPushNotificationService pushNotificationService;
 
         public TripController(IBusRepository busRepository,
+                              IParentRepository parentRepository,
                               IStudentRepository studentRepository,
                               INotificationRepository notificationRepository,
                               IPushNotificationService pushNotificationService)
         {
             this.busRepository = busRepository;
+            this.parentRepository = parentRepository;
             this.studentRepository = studentRepository;
             this.notificationRepository = notificationRepository;
             this.pushNotificationService = pushNotificationService;
@@ -192,7 +194,7 @@ namespace SmartBusAPI.Controllers
             {
                 Dictionary<DestinationType, Func<string>> statusUpdateFunctions = new()
                 {
-                    { 
+                    {
                         DestinationType.Home, () =>
                         {
                             student.LastSeen = updateStudentStatusOffBusDto.Timestamp;
@@ -203,7 +205,7 @@ namespace SmartBusAPI.Controllers
                             return $"Student {student.FirstName} {student.LastName} was dropped off at home at {updateStudentStatusOffBusDto.Timestamp}.";
                         }
                     },
-                    { 
+                    {
                         DestinationType.School, () =>
                         {
                             student.LastSeen = updateStudentStatusOffBusDto.Timestamp;
@@ -240,6 +242,55 @@ namespace SmartBusAPI.Controllers
                 else
                 {
                     result = Error.Conflict("UpdateStudentStatusOffBus", "The bus should be in service and have a valid destination point to update the current student place.");
+                }
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
+        }
+
+        [HttpPost("get-student-bus-location")]
+        public async Task<IActionResult> getStudentBusLocation(GetStudentBusLocationDto getStudentBusLocationDto)
+        {
+            ErrorOr<string> result = "";
+            Parent parent = await parentRepository.GetParentById(getStudentBusLocationDto.ParentID);
+
+            if (parent == null)
+            {
+                result = Error.NotFound("GetStudentBusLocation", string.Format("No parent is found with the given ID({0}).", getStudentBusLocationDto.ParentID));
+            }
+            else
+            {
+                List<Student> parentChildren = (List<Student>)parent.Students;
+                if (parentChildren == null || parentChildren.Count == 0)
+                {
+                    result = Error.NotFound("GetStudentBusLocation", "The given parent ID does not have any linked childrens.");
+                }
+                else
+                {
+                    foreach (Student child in parentChildren)
+                    {
+                        if (child.IsOnBus)
+                        {
+                            Bus bus = await busRepository.GetBusById((int)child.BusID);
+                            if (bus == null)
+                            {
+                                result = Error.NotFound("GetStudentBusLocation", string.Format("No bus is found with the given ID({0}).", (int)child.BusID));
+                            }
+                            else
+                            {
+                                result = bus.CurrentLocation;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            result = Error.NotFound("GetStudentBusLocation", "No children were found on the bus.");
+                        }
+                    }
                 }
             }
 

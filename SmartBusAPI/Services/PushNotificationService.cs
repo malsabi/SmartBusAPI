@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace SmartBusAPI.Services
+﻿namespace SmartBusAPI.Services
 {
     public class PushNotificationService : IPushNotificationService
     {
@@ -17,7 +15,7 @@ namespace SmartBusAPI.Services
                     subID = parentID,
                     appId = PushNotificationConsts.APP_ID,
                     appToken = PushNotificationConsts.APP_TOKEN,
-                    dateSent = DateTime.Now,
+                    dateSent = DateTime.Now.ToString(),
                     title,
                     message
                 };
