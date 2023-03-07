@@ -1,8 +1,10 @@
-﻿namespace SmartBusAPI.Services
+﻿using System.Data;
+
+namespace SmartBusAPI.Services
 {
     public class PushNotificationService : IPushNotificationService
     {
-        public async Task<string> SendNotification(string title, string message, int? parentID, int? busID)
+        public async Task<string> SendNotification(string title, string message, object pushData, int? parentID, int? busID)
         {
             try
             {
@@ -15,6 +17,7 @@
                     subID = parentID,
                     appId = PushNotificationConsts.APP_ID,
                     appToken = PushNotificationConsts.APP_TOKEN,
+                    dateSent = DateTime.Now,
                     title,
                     message
                 };

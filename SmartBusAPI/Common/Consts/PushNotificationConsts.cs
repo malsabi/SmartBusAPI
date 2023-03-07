@@ -4,6 +4,11 @@
     {
         public const int APP_ID = 6602;
         public const string APP_TOKEN = "PXPMRiu8UKyxEr91RRru9i";
-        public const string EndPoint = "https://app.nativenotify.com/api/notification";
+        public const string EndPoint = "https://app.nativenotify.com/api/indie/notification";
+
+        public class LiveMapPushData
+        {
+            public string NavigateTo { get; set; } = "LiveMapScreen";
+        }
     }
 }

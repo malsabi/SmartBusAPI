@@ -6,22 +6,19 @@ namespace SmartBusAPI.Controllers
     public class TripController : BaseController
     {
         private readonly IBusRepository busRepository;
-        private readonly IParentRepository parentRepository;
         private readonly IStudentRepository studentRepository;
-        private readonly IBusDriverRepository busDriverRepository;
         private readonly INotificationRepository notificationRepository;
+        private readonly IPushNotificationService pushNotificationService;
 
         public TripController(IBusRepository busRepository,
-                              IParentRepository parentRepository,
                               IStudentRepository studentRepository,
-                              IBusDriverRepository busDriverRepository,
-                              INotificationRepository notificationRepository)
+                              INotificationRepository notificationRepository,
+                              IPushNotificationService pushNotificationService)
         {
             this.busRepository = busRepository;
-            this.parentRepository = parentRepository;
             this.studentRepository = studentRepository;
-            this.busDriverRepository = busDriverRepository;
             this.notificationRepository = notificationRepository;
+            this.pushNotificationService = pushNotificationService;
         }
 
         [HttpPost("start-bus-trip")]
@@ -161,6 +158,12 @@ namespace SmartBusAPI.Controllers
                     Message = $"Student {student.FirstName} {student.LastName} boarded the bus at {updateStudentStatusOnBusDto.Timestamp}."
                 };
                 await notificationRepository.AddNotification(notification);
+
+                await pushNotificationService.SendNotification(notification.Title, 
+                                                               notification.Message, 
+                                                               new PushNotificationConsts.LiveMapPushData(), 
+                                                               student.ParentID, 
+                                                               null);
             }
 
             return result.Match
@@ -227,6 +230,12 @@ namespace SmartBusAPI.Controllers
                         Message = statusUpdateFunction()
                     };
                     await notificationRepository.AddNotification(notification);
+
+                    await pushNotificationService.SendNotification(notification.Title,
+                                               notification.Message,
+                                               new PushNotificationConsts.LiveMapPushData(),
+                                               student.ParentID,
+                                               null);
                 }
                 else
                 {
