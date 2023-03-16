@@ -11,7 +11,7 @@
             this.emailService = emailService;
         }
 
-        [HttpPost]
+        [HttpPost("post-message")]
         public async Task<IActionResult> PostMessage([FromBody] ContactDto contactDto)
         {
             ErrorOr<string> result;
