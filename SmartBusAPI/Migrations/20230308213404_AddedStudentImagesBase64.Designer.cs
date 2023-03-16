@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartBusAPI.Persistence;
 
@@ -11,9 +12,11 @@ using SmartBusAPI.Persistence;
 namespace SmartBusAPI.Migrations
 {
     [DbContext(typeof(SmartBusContext))]
-    partial class SmartBusContextModelSnapshot : ModelSnapshot
+    [Migration("20230308213404_AddedStudentImagesBase64")]
+    partial class AddedStudentImagesBase64
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

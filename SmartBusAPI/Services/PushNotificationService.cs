@@ -2,7 +2,7 @@
 {
     public class PushNotificationService : IPushNotificationService
     {
-        public async Task<string> SendNotification(string title, string message, object pushData, int? parentID, int? busID)
+        public async Task<string> SendNotification(string title, string message, string dateSent, int? parentID, int? busID)
         {
             try
             {
@@ -12,10 +12,10 @@
 
                 var data = new
                 {
-                    subID = parentID,
+                    subID = parentID.ToString(),
                     appId = PushNotificationConsts.APP_ID,
                     appToken = PushNotificationConsts.APP_TOKEN,
-                    dateSent = DateTime.Now.ToString(),
+                    dateSent,
                     title,
                     message
                 };

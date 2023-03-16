@@ -155,7 +155,7 @@
                 Notification notification = new()
                 {
                     Title = "Student Boarded Notification",
-                    Timestamp = DateTime.Now,
+                    Timestamp = updateStudentStatusOnBusDto.Timestamp,
                     ParentID = student.ParentID,
                     Message = $"Student {student.FirstName} {student.LastName} boarded the bus at {updateStudentStatusOnBusDto.Timestamp}."
                 };
@@ -163,7 +163,7 @@
 
                 await pushNotificationService.SendNotification(notification.Title, 
                                                                notification.Message, 
-                                                               new PushNotificationConsts.LiveMapPushData(), 
+                                                               notification.Timestamp.ToString(), 
                                                                student.ParentID, 
                                                                null);
             }
@@ -227,7 +227,7 @@
                     Notification notification = new()
                     {
                         Title = "Student Arrival Notification",
-                        Timestamp = DateTime.Now,
+                        Timestamp = updateStudentStatusOffBusDto.Timestamp,
                         ParentID = student.ParentID,
                         Message = statusUpdateFunction()
                     };
@@ -235,7 +235,7 @@
 
                     await pushNotificationService.SendNotification(notification.Title,
                                                notification.Message,
-                                               new PushNotificationConsts.LiveMapPushData(),
+                                               notification.Timestamp.ToString(),
                                                student.ParentID,
                                                null);
                 }
@@ -252,26 +252,25 @@
             );
         }
 
-        [HttpPost("get-student-bus-location")]
-        public async Task<IActionResult> getStudentBusLocation(GetStudentBusLocationDto getStudentBusLocationDto)
+        [HttpGet("get-student-bus-location")]
+        public async Task<IActionResult> getStudentBusLocation(int parentID)
         {
-            ErrorOr<string> result = "";
-            Parent parent = await parentRepository.GetParentById(getStudentBusLocationDto.ParentID);
+            ErrorOr<string> result = "Empty Location";
+            Parent parent = await parentRepository.GetParentById(parentID);
 
             if (parent == null)
             {
-                result = Error.NotFound("GetStudentBusLocation", string.Format("No parent is found with the given ID({0}).", getStudentBusLocationDto.ParentID));
+                result = Error.NotFound("GetStudentBusLocation", string.Format("No parent is found with the given ID({0}).", parentID));
             }
             else
             {
-                List<Student> parentChildren = (List<Student>)parent.Students;
-                if (parentChildren == null || parentChildren.Count == 0)
+                if (parent.Students == null || parent.Students.Count == 0)
                 {
                     result = Error.NotFound("GetStudentBusLocation", "The given parent ID does not have any linked childrens.");
                 }
                 else
                 {
-                    foreach (Student child in parentChildren)
+                    foreach (Student child in parent.Students)
                     {
                         if (child.IsOnBus)
                         {

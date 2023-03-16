@@ -49,6 +49,7 @@
             services.AddMappings();
             services.AddSingleton<IHashProviderService, HashProviderService>();
             services.AddSingleton<IJwtAuthService, JwtAuthService>();
+            services.AddSingleton<IEmailService, EmailService>();
             return services;
         }
 

@@ -1,8 +1,10 @@
 ﻿global using Mapster;
 global using ErrorOr;
+global using System.Net;
 global using SmartBusAPI;
 global using System.Text;
 global using MapsterMapper;
+global using System.Net.Mail;
 global using System.Reflection;
 global using SmartBusAPI.Entities;
 global using SmartBusAPI.Services;
@@ -13,6 +15,7 @@ global using System.Security.Claims;
 global using SmartBusAPI.Persistence;
 global using SmartBusAPI.DTOs.Parent;
 global using System.Net.Http.Headers;
+global using SmartBusAPI.DTOs.Contact;
 global using SmartBusAPI.Common.Enums;
 global using Microsoft.OpenApi.Models;
 global using Microsoft.AspNetCore.Mvc;
