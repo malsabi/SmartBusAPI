@@ -1,6 +1,6 @@
 ﻿namespace SmartBusAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     public class ContactUsController : BaseController
     {
