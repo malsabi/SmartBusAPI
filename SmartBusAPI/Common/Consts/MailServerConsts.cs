@@ -4,7 +4,7 @@
     {
         public const string Host = "smtp.gmail.com";
         public const int Port = 587;
-        public const string Username = "smartbusae@gmail.com";
-        public const string Password = "trlnwzimtniemwwl";
+        public static string Username = Encoding.Default.GetString(Convert.FromBase64String("c21hcnRidXNhZUBnbWFpbC5jb20="));
+        public static string Password = Encoding.Default.GetString(Convert.FromBase64String("dHJsbnd6aW10bmllbXd3bA=="));
     }
 }
