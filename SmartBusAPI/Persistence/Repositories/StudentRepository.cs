@@ -31,6 +31,8 @@ namespace SmartBusAPI.Persistence.Repositories
         {
             if (await smartBusContext.Students.FirstOrDefaultAsync(p => p.ID == student.ID) is Student found)
             {
+                found.FaceRecognitionID = student.FaceRecognitionID;
+                found.Image = student.Image;
                 found.FirstName = student.FirstName;
                 found.LastName = student.LastName;
                 found.Gender = student.Gender;

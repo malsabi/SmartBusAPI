@@ -32,7 +32,13 @@
 
         public async Task UpdateNotification(Notification notification)
         {
-            smartBusContext.Notifications.Update(notification);
+            if (await smartBusContext.Notifications.FirstOrDefaultAsync(p => p.ID == notification.ID) is Notification found)
+            {
+                found.Title = notification.Title;
+                found.Message = notification.Message;
+                found.Timestamp = notification.Timestamp;
+                found.IsOpened = notification.IsOpened;
+            }
             await smartBusContext.SaveChangesAsync();
         }
 
