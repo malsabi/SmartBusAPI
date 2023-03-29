@@ -5,10 +5,12 @@
     public class ParentController : BaseController
     {
         private readonly IParentRepository parentRepository;
+        private readonly IHashProviderService hashProviderService;
 
-        public ParentController(IParentRepository parentRepository)
+        public ParentController(IParentRepository parentRepository, IHashProviderService hashProviderService)
         {
             this.parentRepository = parentRepository;
+            this.hashProviderService = hashProviderService;
         }
 
         [HttpGet]
@@ -20,46 +22,90 @@
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var parent = await parentRepository.GetParentById(id);
+            ErrorOr<Parent> result;
+            Parent parent = await parentRepository.GetParentById(id);
             if (parent == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "InvalidParentID", description: "The given ID does not exists.");
             }
-            return Ok(parent);
+            else
+            {
+                result = parent;
+            }
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Parent parent)
         {
+            ErrorOr<string> result;
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                result = Error.Validation(code: "InvalidParent", description: "The given parent is not valid.");
             }
-            await parentRepository.AddParent(parent);
-            return CreatedAtAction(nameof(Get), new { id = parent.ID }, parent);
+            else
+            {
+                parent.Password = hashProviderService.ComputeHash(parent.Password);
+                await parentRepository.AddParent(parent);
+                result = string.Format("Parent with given ID [{0}] was added successfully.", parent.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] Parent parent)
         {
+            ErrorOr<string> result;
             if (id != parent.ID)
             {
-                return BadRequest();
+                result = Error.Validation(code: "InvalidParentID", description: "The given ID does not match the parent ID.");
             }
-            await parentRepository.UpdateParent(parent);
-            return NoContent();
+            else if (!ModelState.IsValid)
+            {
+                result = Error.Validation(code: "InvalidParent", description: "The given parent is not valid.");
+            }
+            else
+            {
+                parent.Password = hashProviderService.ComputeHash(parent.Password);
+                await parentRepository.UpdateParent(parent);
+                result = string.Format("Parent with given ID [{0}] was updated successfully.", parent.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var parent = await parentRepository.GetParentById(id);
+            ErrorOr<string> result;
+            Parent parent = await parentRepository.GetParentById(id);
             if (parent == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "InvalidParentID", description: "The given ID does not exists.");
             }
-            await parentRepository.DeleteParent(parent);
-            return NoContent();
+            else
+            {
+                await parentRepository.DeleteParent(parent);
+                result = string.Format("Parent with given ID [{0}] was deleted successfully.", parent.ID);
+            }
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
     }
 }

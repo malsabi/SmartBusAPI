@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Persistence.Repositories
+﻿using SmartBusAPI.Entities;
+
+namespace SmartBusAPI.Persistence.Repositories
 {
     public class StudentRepository : IStudentRepository
     {
@@ -27,7 +29,21 @@
 
         public async Task UpdateStudent(Student student)
         {
-            smartBusContext.Students.Update(student);
+            if (await smartBusContext.Students.FirstOrDefaultAsync(p => p.ID == student.ID) is Student found)
+            {
+                found.FirstName = student.FirstName;
+                found.LastName = student.LastName;
+                found.Gender = student.Gender;
+                found.GradeLevel = student.GradeLevel;
+                found.Address = student.Address;
+                found.BelongsToBusID = student.BelongsToBusID;
+                found.LastSeen = student.LastSeen;
+                found.IsAtSchool = student.IsAtSchool;
+                found.IsAtHome = student.IsAtHome;
+                found.IsOnBus = student.IsOnBus;
+                found.ParentID = student.ParentID;
+                found.BusID = student.BusID;
+            }
             await smartBusContext.SaveChangesAsync();
         }
 

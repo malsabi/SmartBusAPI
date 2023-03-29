@@ -9,9 +9,9 @@
             this.smartBusContext = smartBusContext;
         }
 
-        public async Task<IEnumerable<Notification>> GetAllNotifications(int id)
+        public async Task<IEnumerable<Notification>> GetAllNotifications()
         {
-            return await smartBusContext.Notifications.Where(n => n.BusID == id).ToListAsync();
+            return await smartBusContext.Notifications.ToListAsync();
         }
 
         public async Task<IEnumerable<Notification>> GetNotificationsStartFrom(DateTime value, int id)

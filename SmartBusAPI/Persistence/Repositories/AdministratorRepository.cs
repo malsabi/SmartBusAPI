@@ -32,7 +32,13 @@
 
         public async Task UpdateAdministrator(Administrator administrator)
         {
-            smartBusContext.Administrators.Update(administrator);
+            if (await smartBusContext.Administrators.FirstOrDefaultAsync(p => p.ID == administrator.ID) is Administrator found)
+            {
+                found.FirstName = administrator.FirstName ?? found.FirstName;
+                found.LastName = administrator.LastName ?? found.LastName;
+                found.Email = administrator.Email ?? found.Email;
+                found.Password = administrator.Password ?? found.Password;
+            }
             await smartBusContext.SaveChangesAsync();
         }
 

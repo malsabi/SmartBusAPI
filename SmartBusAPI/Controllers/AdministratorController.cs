@@ -5,10 +5,12 @@
     public class AdministratorController : BaseController
     {
         private readonly IAdministratorRepository administratorRepository;
+        private readonly IHashProviderService hashProviderService;
 
-        public AdministratorController(IAdministratorRepository administratorRepository)
+        public AdministratorController(IAdministratorRepository administratorRepository, IHashProviderService hashProviderService)
         {
             this.administratorRepository = administratorRepository;
+            this.hashProviderService = hashProviderService;
         }
 
         [HttpGet]
@@ -20,46 +22,92 @@
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var administrator = await administratorRepository.GetAdministratorById(id);
+            ErrorOr<Administrator> result;
+            Administrator administrator = await administratorRepository.GetAdministratorById(id);
             if (administrator == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "AdministratorNotFound", description: "No administrator was found for the given ID.");
             }
-            return Ok(administrator);
+            else
+            {
+                result = administrator;
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Administrator administrator)
         {
+            ErrorOr<string> result;
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                result = Error.Validation(code: "InvalidAdministrator", description: "The given administrator is not valid.");
             }
-            await administratorRepository.AddAdministrator(administrator);
-            return CreatedAtAction(nameof(Get), new { id = administrator.ID }, administrator);
+            else
+            {
+                administrator.Password = hashProviderService.ComputeHash(administrator.Password);
+                await administratorRepository.AddAdministrator(administrator);
+                result = string.Format("Administrator with given ID [{0}] was added successfully.", administrator.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] Administrator administrator)
         {
+            ErrorOr<string> result;
             if (id != administrator.ID)
             {
-                return BadRequest();
+                result = Error.Validation(code: "InvalidAdministratorID", description: "The given ID does not match the ID of the administrator.");
             }
-            await administratorRepository.UpdateAdministrator(administrator);
-            return NoContent();
+            else if (!ModelState.IsValid)
+            {
+                result = Error.Validation(code: "InvalidAdministrator", description: "The given administrator is not valid.");
+            }
+            else
+            {
+                administrator.Password = hashProviderService.ComputeHash(administrator.Password);
+                await administratorRepository.UpdateAdministrator(administrator);
+                result = string.Format("Administrator with given ID [{0}] was updated successfully.", administrator.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var administrator = await administratorRepository.GetAdministratorById(id);
+            ErrorOr<string> result;
+            Administrator administrator = await administratorRepository.GetAdministratorById(id);
             if (administrator == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "AdministratorNotFound", description: "No administrator was found for the given ID.");
             }
-            await administratorRepository.DeleteAdministrator(administrator);
-            return NoContent(); 
+            else
+            {
+                await administratorRepository.DeleteAdministrator(administrator);
+                result = string.Format("Administrator with given ID [{0}] was deleted successfully.", administrator.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
     }
 }

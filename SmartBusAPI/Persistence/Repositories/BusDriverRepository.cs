@@ -32,7 +32,17 @@
 
         public async Task UpdateBusDriver(BusDriver busDriver)
         {
-            smartBusContext.BusDrivers.Update(busDriver);
+            if (await smartBusContext.BusDrivers.FirstOrDefaultAsync(p => p.ID == busDriver.ID) is BusDriver found)
+            {
+                found.FirstName = busDriver.FirstName ?? found.FirstName;
+                found.LastName = busDriver.LastName ?? found.LastName;
+                found.Email = busDriver.Email ?? found.Email;
+                found.DriverID = busDriver.DriverID ?? found.DriverID;
+                found.PhoneNumber = busDriver.PhoneNumber ?? found.PhoneNumber;
+                found.Country = busDriver.Country ?? found.Country;
+                found.Password = busDriver.Password ?? found.Password;
+                found.BusID = busDriver.BusID ?? found.BusID;
+            }
             await smartBusContext.SaveChangesAsync();
         }
 

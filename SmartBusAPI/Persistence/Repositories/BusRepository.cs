@@ -27,7 +27,14 @@
 
         public async Task UpdateBus(Bus bus)
         {
-            smartBusContext.Buses.Update(bus);
+            if (await smartBusContext.Buses.FirstOrDefaultAsync(p => p.ID == bus.ID) is Bus found)
+            {
+                found.LicenseNumber = bus.LicenseNumber;
+                found.Capacity = bus.Capacity;
+                found.CurrentLocation = bus.CurrentLocation ?? found.CurrentLocation;
+                found.DestinationType = bus.DestinationType;
+                found.IsInService = bus.IsInService;
+            }
             await smartBusContext.SaveChangesAsync();
         }
 

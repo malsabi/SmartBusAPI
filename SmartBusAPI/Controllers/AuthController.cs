@@ -147,7 +147,6 @@
                 Parent parent = mapper.Map<Parent>(parentRegisterDto);
                 parent.Password = hashProviderService.ComputeHash(parentRegisterDto.Password);
                 await parentRepository.AddParent(parent);
-
                 result = "Parent is registered successfully";
             }
 

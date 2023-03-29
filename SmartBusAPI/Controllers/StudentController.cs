@@ -1,18 +1,13 @@
-﻿using SmartBusAPI.DTOs.Student;
-
-namespace SmartBusAPI.Controllers
+﻿namespace SmartBusAPI.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     public class StudentController : BaseController
     {
-        private readonly IMapper mapper;
         private readonly IStudentRepository studentRepository;
 
-        public StudentController(IMapper mapper, 
-                                 IStudentRepository studentRepository)
+        public StudentController(IStudentRepository studentRepository)
         {
-            this.mapper = mapper;
             this.studentRepository = studentRepository;
         }
 
@@ -25,48 +20,89 @@ namespace SmartBusAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
+            ErrorOr<Student> result;
             Student student = await studentRepository.GetStudentById(id);
             if (student == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "InvalidStudentID", description: "The given ID does not exist.");
             }
-
-            StudentDto studentDto = mapper.Map<StudentDto>(student);
-            return Ok(studentDto);
+            else
+            {
+                result = student;
+            }
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Student student)
         {
+            ErrorOr<string> result;
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                result = Error.Validation(code: "InvalidStudent", description: "The given student is not valid.");
             }
-            await studentRepository.AddStudent(student);
-            return CreatedAtAction(nameof(Get), new { id = student.ID }, student);
+            else
+            {
+                await studentRepository.AddStudent(student);
+                result = string.Format("Student with given ID [{0}] was added successfully.", student.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] Student student)
         {
+            ErrorOr<string> result;
             if (id != student.ID)
             {
-                return BadRequest();
+                result = Error.Validation(code: "InvalidStudentID", description: "The given ID does not match the student ID.");
             }
-            await studentRepository.UpdateStudent(student);
-            return NoContent();
+            else if (!ModelState.IsValid)
+            {
+                result = Error.Validation(code: "InvalidStudent", description: "The given student is not valid.");
+            }
+            else
+            {
+                await studentRepository.UpdateStudent(student);
+                result = string.Format("Student with given ID [{0}] was updated successfully.", student.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var student = await studentRepository.GetStudentById(id);
+            ErrorOr<string> result;
+            Student student = await studentRepository.GetStudentById(id);
             if (student == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "InvalidStudentID", description: "The given ID does not exist.");
             }
-            await studentRepository.DeleteStudent(student);
-            return NoContent();
+            else
+            {
+                await studentRepository.DeleteStudent(student);
+                result = string.Format("Student with given ID [{0}] was deleted successfully.", student.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
     }
 }

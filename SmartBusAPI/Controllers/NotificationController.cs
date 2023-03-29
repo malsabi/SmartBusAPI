@@ -12,11 +12,11 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetNotifications(int id)
+        public async Task<IActionResult> Get()
         {
             ErrorOr<IEnumerable<Notification>> result;
 
-            List<Notification> notifications = (List<Notification>)await notificationRepository.GetAllNotifications(id);
+            List<Notification> notifications = (List<Notification>)await notificationRepository.GetAllNotifications();
 
             if (notifications == null || notifications.Count == 0)
             {
@@ -35,7 +35,7 @@
         }
 
         [HttpGet("start-from")]
-        public async Task<IActionResult> GetNotificationsStartFrom(DateTime value, int id)
+        public async Task<IActionResult> GetStartFrom(DateTime value, int id)
         {
             ErrorOr<IEnumerable<Notification>> result;
 
@@ -58,51 +58,94 @@
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetNotification(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var notification = await notificationRepository.GetNotificationById(id);
+            ErrorOr<Notification> result;
+            Notification notification = await notificationRepository.GetNotificationById(id);
 
             if (notification == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "NotificationNotFound", description: "No notification was found for the given ID.");
+            }
+            else
+            {
+                result = notification;
             }
 
-            return Ok(notification);
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostNotification(Notification notification)
+        public async Task<IActionResult> Post(Notification notification)
         {
-            await notificationRepository.AddNotification(notification);
-            return CreatedAtAction(nameof(GetNotification), new { id = notification.ID }, notification);
+            ErrorOr<string> result;
+            if (!ModelState.IsValid)
+            {
+                result = Error.Validation(code: "InvalidNotification", description: "The given notification is not valid.");
+            }
+            else
+            {
+                await notificationRepository.AddNotification(notification);
+                result = string.Format("Notification with given ID [{0}] was added successfully.", notification.ID);
+            }
+
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNotification(int id, Notification notification)
+        public async Task<IActionResult> Put(int id, Notification notification)
         {
+            ErrorOr<string> result;
             if (id != notification.ID)
             {
-                return BadRequest();
+                result = Error.Validation(code: "InvalidNotificationID", description: "The given ID does not match the ID of the notification.");
+            }
+            else if (!ModelState.IsValid)
+            {
+                result = Error.Validation(code: "InvalidNotification", description: "The given notification is not valid.");
+            }
+            else
+            {
+                await notificationRepository.UpdateNotification(notification);
+                result = string.Format("Notification with given ID [{0}] was updated successfully.", notification.ID);
             }
 
-            await notificationRepository.UpdateNotification(notification);
-
-            return NoContent();
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteNotification(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var notification = await notificationRepository.GetNotificationById(id);
+            ErrorOr<string> result;
+            Notification notification = await notificationRepository.GetNotificationById(id);
 
             if (notification == null)
             {
-                return NotFound();
+                result = Error.NotFound(code: "NotificationNotFound", description: "No notification was found for the given ID.");
+            }
+            else
+            {
+                await notificationRepository.DeleteNotification(notification);
+                result = string.Format("Notification with given ID [{0}] was deleted successfully.", notification.ID);
             }
 
-            await notificationRepository.DeleteNotification(notification);
-
-            return NoContent();
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
         }
     }
 }
