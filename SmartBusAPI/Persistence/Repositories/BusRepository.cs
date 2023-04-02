@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Persistence.Repositories
+﻿using SmartBusAPI.Common.Extensions;
+
+namespace SmartBusAPI.Persistence.Repositories
 {
     public class BusRepository : IBusRepository
     {
@@ -42,6 +44,7 @@
         {
             smartBusContext.Buses.Remove(bus);
             await smartBusContext.SaveChangesAsync();
+            smartBusContext.ResetIdentityValue<Bus>("Buses");
         }
     }
 }

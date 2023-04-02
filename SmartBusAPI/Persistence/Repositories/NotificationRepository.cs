@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Persistence.Repositories
+﻿using SmartBusAPI.Common.Extensions;
+
+namespace SmartBusAPI.Persistence.Repositories
 {
     public class NotificationRepository : INotificationRepository
     {
@@ -46,6 +48,7 @@
         {
             smartBusContext.Notifications.Remove(notification);
             await smartBusContext.SaveChangesAsync();
+            smartBusContext.ResetIdentityValue<Notification>("Notifications");
         }
     }
 }

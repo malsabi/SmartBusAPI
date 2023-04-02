@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Persistence.Repositories
+﻿using SmartBusAPI.Common.Extensions;
+
+namespace SmartBusAPI.Persistence.Repositories
 {
     public class ParentRepository : IParentRepository
     {
@@ -48,6 +50,7 @@
         {
             smartBusContext.Parents.Remove(parent);
             await smartBusContext.SaveChangesAsync();
+            smartBusContext.ResetIdentityValue<Parent>("parents");
         }
     }
 }

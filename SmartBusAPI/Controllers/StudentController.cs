@@ -37,6 +37,26 @@
             );
         }
 
+        [HttpGet("faceRecognition/{faceRecognitionId}")]
+        public async Task<IActionResult> GetByFaceRecognition(int faceRecognitionId)
+        {
+            ErrorOr<Student> result;
+            Student student = await studentRepository.GetStudentByFaceRecognitionID(faceRecognitionId);
+            if (student == null)
+            {
+                result = Error.NotFound(code: "InvalidFaceRecognitionID", description: "The given face recognition ID does not exist.");
+            }
+            else
+            {
+                result = student;
+            }
+            return result.Match
+            (
+                Ok,
+                Problem
+            );
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Student student)
         {

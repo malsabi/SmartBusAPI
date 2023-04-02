@@ -26,7 +26,7 @@
             Parent parent = await parentRepository.GetParentById(id);
             if (parent == null)
             {
-                result = Error.NotFound(code: "InvalidParentID", description: "The given ID does not exists.");
+                result = Error.NotFound(code: "InvalidParentID", description: "The given Parent ID does not exists.");
             }
             else
             {
@@ -43,15 +43,24 @@
         public async Task<IActionResult> Post([FromBody] Parent parent)
         {
             ErrorOr<string> result;
+
             if (!ModelState.IsValid)
             {
                 result = Error.Validation(code: "InvalidParent", description: "The given parent is not valid.");
             }
             else
             {
-                parent.Password = hashProviderService.ComputeHash(parent.Password);
-                await parentRepository.AddParent(parent);
-                result = string.Format("Parent with given ID [{0}] was added successfully.", parent.ID);
+                Parent currentParent = await parentRepository.GetParentByEmail(parent.Email);
+                if (currentParent != null)
+                {
+                    result = Error.Conflict(code: "DuplicateEmailParent", description: "The given email already exists");
+                }
+                else
+                {
+                    parent.Password = hashProviderService.ComputeHash(parent.Password);
+                    await parentRepository.AddParent(parent);
+                    result = string.Format("Parent with given ID [{0}] was added successfully.", parent.ID);
+                }
             }
 
             return result.Match
@@ -75,9 +84,21 @@
             }
             else
             {
-                parent.Password = hashProviderService.ComputeHash(parent.Password);
-                await parentRepository.UpdateParent(parent);
-                result = string.Format("Parent with given ID [{0}] was updated successfully.", parent.ID);
+                Parent currentParent = await parentRepository.GetParentById(id);
+
+                if (currentParent == null)
+                {
+                    result = Error.NotFound(code: "InvalidParentID", description: "The given Parent ID does not exists.");
+                }
+                else
+                {
+                    if (currentParent.Password != parent.Password)
+                    {
+                        parent.Password = hashProviderService.ComputeHash(parent.Password);
+                    }
+                    await parentRepository.UpdateParent(parent);
+                    result = string.Format("Parent with given ID [{0}] was updated successfully.", parent.ID);
+                }
             }
 
             return result.Match
@@ -94,7 +115,7 @@
             Parent parent = await parentRepository.GetParentById(id);
             if (parent == null)
             {
-                result = Error.NotFound(code: "InvalidParentID", description: "The given ID does not exists.");
+                result = Error.NotFound(code: "InvalidParentID", description: "The given Parent ID does not exists.");
             }
             else
             {

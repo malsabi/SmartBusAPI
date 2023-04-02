@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Persistence.Repositories
+﻿using SmartBusAPI.Common.Extensions;
+
+namespace SmartBusAPI.Persistence.Repositories
 {
     public class AdministratorRepository : IAdministratorRepository
     {
@@ -46,6 +48,7 @@
         {
             smartBusContext.Administrators.Remove(administrator);
             await smartBusContext.SaveChangesAsync();
+            smartBusContext.ResetIdentityValue<Administrator>("Administrators");
         }
     }
 }

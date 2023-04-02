@@ -1,6 +1,4 @@
-﻿using SmartBusAPI.Entities;
-
-namespace SmartBusAPI.Persistence.Repositories
+﻿namespace SmartBusAPI.Persistence.Repositories
 {
     public class StudentRepository : IStudentRepository
     {
@@ -19,6 +17,11 @@ namespace SmartBusAPI.Persistence.Repositories
         public async Task<Student> GetStudentById(int id)
         {
             return await smartBusContext.Students.FindAsync(id);
+        }
+
+        public async Task<Student> GetStudentByFaceRecognitionID(int faceRecognitionID)
+        {
+            return await smartBusContext.Students.FirstOrDefaultAsync(s => s.FaceRecognitionID == faceRecognitionID);
         }
 
         public async Task AddStudent(Student student)
@@ -53,6 +56,7 @@ namespace SmartBusAPI.Persistence.Repositories
         {
             smartBusContext.Students.Remove(student);
             await smartBusContext.SaveChangesAsync();
+            smartBusContext.ResetIdentityValue<Student>("Students");
         }
     }
 }

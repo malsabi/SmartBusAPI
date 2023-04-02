@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Persistence.Repositories
+﻿using SmartBusAPI.Common.Extensions;
+
+namespace SmartBusAPI.Persistence.Repositories
 {
     public class BusDriverRepository : IBusDriverRepository
     {
@@ -34,22 +36,23 @@
         {
             if (await smartBusContext.BusDrivers.FirstOrDefaultAsync(p => p.ID == busDriver.ID) is BusDriver found)
             {
-                found.FirstName = busDriver.FirstName ?? found.FirstName;
-                found.LastName = busDriver.LastName ?? found.LastName;
-                found.Email = busDriver.Email ?? found.Email;
-                found.DriverID = busDriver.DriverID ?? found.DriverID;
-                found.PhoneNumber = busDriver.PhoneNumber ?? found.PhoneNumber;
-                found.Country = busDriver.Country ?? found.Country;
-                found.Password = busDriver.Password ?? found.Password;
-                found.BusID = busDriver.BusID ?? found.BusID;
+                found.FirstName = busDriver.FirstName;
+                found.LastName = busDriver.LastName;
+                found.Email = busDriver.Email;
+                found.DriverID = busDriver.DriverID;
+                found.PhoneNumber = busDriver.PhoneNumber;
+                found.Country = busDriver.Country;
+                found.Password = busDriver.Password;
+                found.BusID = busDriver.BusID;
             }
             await smartBusContext.SaveChangesAsync();
         }
 
         public async Task DeleteBusDriver(BusDriver busDriver)
         {
-            smartBusContext.BusDrivers.Update(busDriver);
+            smartBusContext.BusDrivers.Remove(busDriver);
             await smartBusContext.SaveChangesAsync();
+            smartBusContext.ResetIdentityValue<BusDriver>("BusDrivers");
         }
     }
 }

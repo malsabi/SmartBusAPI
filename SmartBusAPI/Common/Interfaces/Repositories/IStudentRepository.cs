@@ -4,6 +4,7 @@
     {
         public Task<IEnumerable<Student>> GetAllStudents();
         public Task<Student> GetStudentById(int id);
+        public Task<Student> GetStudentByFaceRecognitionID(int faceRecognitionID);
         public Task AddStudent(Student student);
         public Task UpdateStudent(Student student);
         public Task DeleteStudent(Student student);

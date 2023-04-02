@@ -50,9 +50,17 @@
             }
             else
             {
-                busDriver.Password = hashProviderService.ComputeHash(busDriver.Password);
-                await busDriverRepository.AddBusDriver(busDriver);
-                result = string.Format("Bus driver with given ID [{0}] was added successfully.", busDriver.ID);
+                BusDriver currentBusDriver = await busDriverRepository.GetBusDriverByDriverID(busDriver.DriverID);
+                if (currentBusDriver != null)
+                {
+                    result = Error.Conflict(code: "DuplicateDriverID", description: "The given Driver ID already exists");
+                }
+                else
+                {
+                    busDriver.Password = hashProviderService.ComputeHash(busDriver.Password);
+                    await busDriverRepository.AddBusDriver(busDriver);
+                    result = string.Format("Bus driver with given ID [{0}] was added successfully.", busDriver.ID);
+                }
             }
 
             return result.Match
@@ -76,9 +84,20 @@
             }
             else
             {
-                busDriver.Password = hashProviderService.ComputeHash(busDriver.Password);
-                await busDriverRepository.UpdateBusDriver(busDriver);
-                result = string.Format("Bus driver with given ID [{0}] was updated successfully.", busDriver.ID);
+                BusDriver currentBusDriver = await busDriverRepository.GetBusDriverById(id);
+                if (currentBusDriver == null)
+                {
+                    result = Error.NotFound(code: "BusDriverNotFound", description: "No bus driver was found for the given ID.");
+                }
+                else
+                {
+                    if (currentBusDriver.Password != busDriver.Password)
+                    {
+                        busDriver.Password = hashProviderService.ComputeHash(busDriver.Password);
+                    }
+                    await busDriverRepository.UpdateBusDriver(busDriver);
+                    result = string.Format("Bus driver with given ID [{0}] was updated successfully.", busDriver.ID);
+                }
             }
 
             return result.Match
