@@ -1,4 +1,6 @@
-﻿namespace SmartBusAPI.Controllers
+﻿using SmartBusAPI.Persistence.Repositories;
+
+namespace SmartBusAPI.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -14,24 +16,8 @@
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            ErrorOr<IEnumerable<Notification>> result;
-
-            List<Notification> notifications = (List<Notification>)await notificationRepository.GetAllNotifications();
-
-            if (notifications == null || notifications.Count == 0)
-            {
-                result = Error.NotFound(code: "NotificationNotFound", description: "No notifications were found for the given ID.");
-            }
-            else
-            {
-                result = notifications;
-            }
-
-            return result.Match
-            (
-                Ok,
-                Problem
-            );
+            var buses = await notificationRepository.GetAllNotifications();
+            return Ok(buses);
         }
 
         [HttpGet("start-from")]

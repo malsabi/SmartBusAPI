@@ -1,6 +1,4 @@
-﻿using SmartBusAPI.Common.Extensions;
-
-namespace SmartBusAPI.Persistence.Repositories
+﻿namespace SmartBusAPI.Persistence.Repositories
 {
     public class NotificationRepository : INotificationRepository
     {

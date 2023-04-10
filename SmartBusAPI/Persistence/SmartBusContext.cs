@@ -30,8 +30,8 @@
                 new Administrator()
                 {
                     ID = 1,
-                    FirstName = "Admin",
-                    LastName = "Admin",
+                    FirstName = "Peer",
+                    LastName = "Shah",
                     Email = "SmartBus_Admin@outlook.com",
                     Password = "f8a0f873783fd0f4e6ac1268f21403a19a794e75b625813be6f3b0c45fec4c19"
                 }
