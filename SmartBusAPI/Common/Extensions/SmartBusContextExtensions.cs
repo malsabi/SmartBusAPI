@@ -5,7 +5,11 @@
         public static void ResetIdentityValue<TEntity>(this SmartBusContext context, string tableName) where TEntity : class
         {
             // Get the maximum ID value from the specified table
-            int maxId = context.Set<TEntity>().AsEnumerable().Max(e => (int)e.GetType().GetProperty("ID").GetValue(e));
+            int maxId = 0;
+            if (context.Set<TEntity>().Any())
+            {
+                maxId = context.Set<TEntity>().AsEnumerable().Max(e => (int)e.GetType().GetProperty("ID").GetValue(e));
+            }
 
             // Create a new SqlCommand object
             DbCommand command = context.Database.GetDbConnection().CreateCommand();
